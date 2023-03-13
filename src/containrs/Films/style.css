@@ -1,0 +1,15 @@
+.details img {
+    width: 100px;
+}
+
+.list_container {
+    width: 100%;
+}
+
+
+.list_container--mob {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
