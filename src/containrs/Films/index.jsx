@@ -1,35 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import './style.css'
 import FilmCard from "../../components/FilmCard";
-import api from '../../services/api';
+import { Context } from "../../App";
 
 //рендеримо список item
-const List = ({list, handleShowInfo}) => {
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
+const List = ({handleShowInfo}) => {
+    const {state, dispatch} = useContext(Context); // Context - тщй  що імпортився з App
 
-    useEffect(() => {
-        const callback = () => {
-            setIsMobile(window.innerWidth <= 500);
-            console.log('is mobile', window.innerWidth <= 500)
-        }
+    const handleDeleteFilm = (id) => dispatch({type: 'FILMS/DELETE_BY_ID', payload: id})
 
-        // підписка на  подію resize
-        window.addEventListener('resize', callback);
-
-        // коли  компонент List розмаунтиться - потрібно буде відписатися події resize від callback 
-        return () =>  window.removeEventListener('resize', callback)
-    }, [])
-
-    const containerClass = `list_container ${isMobile ? 'list_container--mob' : ''}`
-
-    if(!list.length) {
+    if(!state.films.length) {
         return <h1>No items</h1>
     }
 
     // карточки з фільмами потрібно було заімпортити
     return (
-        <div className={containerClass}>
-            {list.map(item => <FilmCard data={item} handleShowInfo={() => handleShowInfo(item)}/>)}
+        <div className='list_container'>
+            {state.films.map(item => <FilmCard handleDeleteFilm={handleDeleteFilm} data={item} handleShowInfo={() => handleShowInfo(item)}/>)}
         </div>
     )
 }
@@ -49,19 +36,12 @@ const Details = ({data, handleBack}) => {
 }
 
 const Films = () => {
-    const [list, setList] = useState([]);
+    const { state } = useContext(Context);
     const [viewType, setViewType] = useState({
         type: 'list', //info or list
         data: null,
     })
-    const [isLoading, setIsLoading] = useState(true);
-
-        //викликаємо useEffect один раз  на маунті, щоб взяти всі фільми з бекенду
-        // коли отримає - виклече setList
-    useEffect(() => {
-        // виклик сервісу, взято getFilm, отримуємо  та записуємо у стейт setList
-        api.getFilms().then(films => setList(films)).finally(() => setIsLoading(false));
-    }, []);
+   
 
     const handleShowInfo = (data) => {
         setViewType({
@@ -77,13 +57,13 @@ const Films = () => {
         })
     }
 
-    if (isLoading) return <h1>Loading...</h1>
+    if (state.isLoading) return <h1>Loading...</h1>
 
     return (
         <div className="container">
             {
                 viewType.type === 'list' ? 
-                <List list={list} handleShowInfo={handleShowInfo}/> : 
+                <List handleShowInfo={handleShowInfo}/> : 
                 <Details data={viewType.data} handleBack={handleBack}/>}
         </div>
     )
