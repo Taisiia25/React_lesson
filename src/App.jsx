@@ -5,6 +5,7 @@ import NavBar from './components/NavBar';
 import Films from './containrs/Films';
 import People from './containrs/People';
 import api from './services/api';
+import store from './store';
 
 const initialState = {
   counter: 1,
